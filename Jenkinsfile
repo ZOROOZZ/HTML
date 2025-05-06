@@ -41,8 +41,8 @@ pipeline {
             steps {
                 script {
                     echo 'Deploying to Kubernetes...'
-                    sh 'kubectl set image deployment/node-app node-app=$DOCKER_IMAGE'
-                    sh 'kubectl rollout restart deployment/node-app'
+                    sh 'kubectl set image deployment/html-app html-app=$DOCKER_IMAGE -n html'
+                    sh 'kubectl rollout restart deployment/html-app -n html'
                 }
             }
         }
