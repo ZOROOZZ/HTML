@@ -14,7 +14,7 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            agent { label 'docker-agent' }  // Change this to your actual Docker node label
+            agent any
             steps {
                 script {
                     echo 'Building Docker image...'
@@ -24,7 +24,7 @@ pipeline {
         }
 
         stage('Push to Docker Hub') {
-            agent { label 'docker-agent' }  // Same node as above
+            agent any
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
@@ -37,7 +37,7 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
-            agent { label 'k8s-agent' }  // Change to your Kubernetes Jenkins agent label
+            agent any
             steps {
                 script {
                     echo 'Deploying to Kubernetes...'
