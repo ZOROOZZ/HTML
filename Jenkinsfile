@@ -1,5 +1,10 @@
 pipeline {
     agent none
+
+    environment {
+        DOCKER_IMAGE = 'zoroozz/html:latest'
+    }
+
     stages {
         stage('Clone Repository') {
             agent any
@@ -7,37 +12,48 @@ pipeline {
                 git 'https://github.com/ZOROOZZ/HTML.git'
             }
         }
-        
+
         stage('Build Docker Image') {
-            agent { label 'docker-cloud' }
+            agent { label 'docker-agent' }  // Change this to your actual Docker node label
             steps {
                 script {
-                    // Build Docker image
-                    sh 'docker build -t zoroozz/html:latest .'
+                    echo 'Building Docker image...'
+                    sh 'docker build -t $DOCKER_IMAGE .'
                 }
             }
         }
-        
+
         stage('Push to Docker Hub') {
-            agent { label 'docker-cloud' }
+            agent { label 'docker-agent' }  // Same node as above
             steps {
                 script {
-                    // Push to Docker Hub
-                    sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
-                    sh 'docker push zoroozz/html:latest'
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        echo 'Logging into Docker Hub...'
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                        sh 'docker push $DOCKER_IMAGE'
+                    }
                 }
             }
         }
-        
+
         stage('Deploy to Kubernetes') {
-            agent { label 'MyKubernetesCloud' }
+            agent { label 'k8s-agent' }  // Change to your Kubernetes Jenkins agent label
             steps {
                 script {
-                    // Deploy to Kubernetes
-                    sh 'kubectl set image deployment/node-app node-app=zoroozz/html:latest'
+                    echo 'Deploying to Kubernetes...'
+                    sh 'kubectl set image deployment/node-app node-app=$DOCKER_IMAGE'
                     sh 'kubectl rollout restart deployment/node-app'
                 }
             }
+        }
+    }
+
+    post {
+        failure {
+            echo 'Pipeline failed. Please check the error log above.'
+        }
+        success {
+            echo 'Pipeline completed successfully.'
         }
     }
 }
