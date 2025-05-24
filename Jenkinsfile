@@ -9,7 +9,7 @@ pipeline {
 
     stage('Push Docker Image') {
       steps {
-        sh '''docker login -u $DOCKER_USER -p $DOCKER_PASS
+        sh '''docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
 docker push zoroozz/html:latest
 '''
       }
