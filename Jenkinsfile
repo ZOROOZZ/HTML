@@ -24,6 +24,6 @@ docker push zoroozz/html:latest
 
   }
   environment {
-    DOCKER_USER = 'DOCKER_PASS'
+    DOCKER_CRED = 'dockerhub-creds'
   }
 }
