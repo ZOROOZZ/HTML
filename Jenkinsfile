@@ -17,7 +17,7 @@ docker push zoroozz/html:latest
 
     stage('Deploy to Kubernetes') {
       steps {
-        sh '''kubectl set image deployment/your-deployment your-container=zoroozz/html:latest --record
+        sh '''kubectl set image deployment/html-app html-app=zoroozz/html:latest -n html
 '''
       }
     }
